@@ -103,18 +103,6 @@ jobs:
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
-    - name: 下载自定义插件
-      run: |
-        cd openwrt
-        # 下载 luci-app-msd_lite 和 luci-i18n-msd_lite-zh-cn 到指定目录
-        mkdir -p package/feeds/luci/applications
-        curl -L -o package/feeds/luci/applications/luci-app-msd_lite.ipk https://raw.githubusercontent.com/gyssi00700/luci-app-msd_lite/main/luci-app-msd_lite.ipk
-        curl -L -o package/feeds/luci/applications/luci-i18n-msd_lite-zh-cn.ipk https://raw.githubusercontent.com/gyssi00700/luci-app-msd_lite/refs/heads/main/luci-i18n-msd_lite-zh-cn.ipk
-        
-        # 下载 msd_lite 到指定目录
-        mkdir -p package/feeds/packages/net
-        curl -L -o package/feeds/packages/net/msd_lite.ipk https://raw.githubusercontent.com/gyssi00700/luci-app-msd_lite/refs/heads/main/msd_lite.ipk
-
     - name: 下载安装包
       id: package
       run: |
