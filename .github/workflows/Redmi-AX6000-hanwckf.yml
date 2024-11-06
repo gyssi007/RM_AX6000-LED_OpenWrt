@@ -71,17 +71,55 @@ jobs:
         echo "Updating all feeds..."
         ./scripts/feeds update -a || exit 1
         echo "Removing specified packages..."
-        rm -rf feeds/packages/net/{alist,msd_lite,ddns-go}
-        rm -rf feeds/luci/applications/{luci-app-alist,luci-app-msd_lite,luci-app-ddns-go,luci-app-openclash}
-        echo "Updating kenzok8 feed..."
-        ./scripts/feeds update kenzok8 || exit 1
-        echo "Installing specific packages from kenzok8..."
-        ./scripts/feeds install -p kenzok8 -f luci-app-msd luci-app-msd_lite || exit 1
+        rm -rf feeds/packages/net/{alist,ddns-go}
+        rm -rf feeds/luci/applications/{luci-app-alist,luci-app-ddns-go,luci-app-openclash}
+        # 删除 msd_lite 相关包,因为我们将使用 IPK 安装
+        rm -rf feeds/packages/net/msd_lite
+        rm -rf feeds/luci/applications/luci-app-msd_lite
         echo "Final update and install of all feeds..."
         ./scripts/feeds update -a || exit 1
         ./scripts/feeds install -a || exit 1
-        echo "Ensuring kenzok8 packages are installed..."
-        ./scripts/feeds install -p kenzok8 -f luci-app-msd luci-app-msd_lite || exit 1
+
+    - name: 下载并设置 MSD_Lite IPK
+      run: |
+        cd openwrt
+        # 创建必要的目录
+        mkdir -p files/root/ipk
+        mkdir -p files/etc/uci-defaults
+        
+        # 下载 IPK 文件
+        wget -P files/root/ipk/ https://github.com/gyssi00700/luci-app-msd_lite/raw/refs/heads/main/luci-app-msd_lite.ipk
+        wget -P files/root/ipk/ https://github.com/gyssi00700/luci-app-msd_lite/raw/refs/heads/main/luci-i18n-msd_lite-zh-cn.ipk
+        wget -P files/root/ipk/ https://github.com/gyssi00700/luci-app-msd_lite/raw/refs/heads/main/msd_lite.ipk
+        
+        # 验证文件下载是否成功
+        if [ ! -f files/root/ipk/msd_lite.ipk ] || [ ! -f files/root/ipk/luci-app-msd_lite.ipk ] || [ ! -f files/root/ipk/luci-i18n-msd_lite-zh-cn.ipk ]; then
+          echo "Error: Some IPK files failed to download!"
+          exit 1
+        fi
+        
+        # 创建自动安装脚本
+        cat > files/etc/uci-defaults/99-install-msd-lite << 'EOF'
+        #!/bin/sh
+
+        cd /root/ipk
+        opkg update
+        # 按顺序安装包
+        opkg install msd_lite.ipk
+        opkg install luci-app-msd_lite.ipk
+        opkg install luci-i18n-msd_lite-zh-cn.ipk
+        
+        # 清理文件
+        rm -rf /root/ipk
+        
+        # 重启 uhttpd 使界面生效
+        /etc/init.d/uhttpd restart
+        
+        exit 0
+        EOF
+        
+        # 添加执行权限
+        chmod +x files/etc/uci-defaults/99-install-msd-lite
       
     - name: 加载config & DIY_P2_SH
       run: |
