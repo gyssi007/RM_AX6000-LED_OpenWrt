@@ -73,19 +73,19 @@ jobs:
       run: |
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
         chmod +x $DIY_P1_SH
-        cd immortalwrt-mt798x-23.05
+        cd immortalwrt-mt798x-23.05-openwrt-23.05
         $GITHUB_WORKSPACE/$DIY_P1_SH
         
     - name: 更新 & 安装 feeds
       run: |
-        cd immortalwrt-mt798x-23.05
+        cd immortalwrt-mt798x-23.05-openwrt-23.05
         ./scripts/feeds update -a
         rm -rf feeds/packages/lang/golang
         git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
         
     - name: 更新和替换插件
       run: |
-        cd immortalwrt-mt798x-23.05
+        cd immortalwrt-mt798x-23.05-openwrt-23.05
         # 删除旧的 Openclash 文件
         rm -rf feeds/luci/applications/luci-app-openclash
         mv feeds/kenzok8/luci-app-openclash feeds/luci/applications/luci-app-openclash
@@ -107,7 +107,7 @@ jobs:
       run: |
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         chmod +x $DIY_P2_SH
-        cd immortalwrt-mt798x-23.05
+        cd immortalwrt-mt798x-23.05-openwrt-23.05
         $GITHUB_WORKSPACE/$DIY_P2_SH
         
     - name: SSH链接管理
@@ -120,7 +120,7 @@ jobs:
     - name: 下载安装包
       id: package
       run: |
-        cd immortalwrt-mt798x-23.05
+        cd immortalwrt-mt798x-23.05-openwrt-23.05
         make defconfig
         make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
@@ -129,7 +129,7 @@ jobs:
     - name: 编译固件
       id: compile
       run: |
-        cd immortalwrt-mt798x-23.05
+        cd immortalwrt-mt798x-23.05-openwrt-23.05
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
@@ -147,7 +147,7 @@ jobs:
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: | 
-        cd immortalwrt-mt798x-23.05/bin/targets/*/*
+        cd immortalwrt-mt798x-23.05-openwrt-23.05/bin/targets/*/*
         rm -rf packages
         sudo -E apt-get -qq install rename
         rename 's/.*${{ env.TARGET_NAME }}/${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}/' *
