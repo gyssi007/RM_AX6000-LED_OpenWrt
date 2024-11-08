@@ -24,7 +24,7 @@ env:
 
 jobs:
   build:
-    runs-on: debian-11
+    runs-on: ubuntu-22.04  # 使用 Ubuntu 22.04 系统
 
     steps:
     - name: 检查项目分支
@@ -177,7 +177,4 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        files: ${{ env.FIRMWARE }}/*
-        name: ${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}-${{ env.DEVICE_NAME }}
-        tag_name: ${{ steps.tag.outputs.release_tag }}
-        body_path: release.txt
+        files: release.txt
