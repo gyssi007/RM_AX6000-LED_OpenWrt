@@ -64,19 +64,19 @@ jobs:
       run: |
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
         chmod +x $DIY_P1_SH
-        cd immortalwrt
+        cd openwrt
         $GITHUB_WORKSPACE/$DIY_P1_SH
         
     - name: 更新 & 安装 feeds
       run: |
-        cd immortalwrt
+        cd openwrt
         ./scripts/feeds update -a
         rm -rf feeds/packages/lang/golang
         git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
 
     - name: 删除和替换插件
       run: |
-        cd immortalwrt
+        cd openwrt
         echo "Updating all feeds..."
         ./scripts/feeds update -a || exit 1
         echo "Removing specified packages..."
@@ -95,12 +95,12 @@ jobs:
       run: |
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         chmod +x $DIY_P2_SH
-        cd immortalwrt
+        cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
 
     - name: 修改默认网关和主机名
       run: |
-        cd immortalwrt
+        cd openwrt
         sed -i 's/192.168.1.1/192.168.6.1/g' package/base-files/files/bin/config_generate
         sed -i 's/ImmortalWrt/OpenWrt/g' package/base-files/files/bin/config_generate
   
@@ -114,7 +114,7 @@ jobs:
     - name: 下载安装包
       id: package
       run: |
-        cd immortalwrt
+        cd openwrt
         make defconfig
         make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
@@ -123,7 +123,7 @@ jobs:
     - name: 编译固件
       id: compile
       run: |
-        cd immortalwrt
+        cd openwrt
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
@@ -141,7 +141,7 @@ jobs:
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: | 
-        cd immortalwrt/bin/targets/*/*
+        cd openwrt/bin/targets/*/*
         rm -rf packages
         sudo -E apt-get -qq install rename
         rename 's/.*${{ env.TARGET_NAME }}/${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}/' *
