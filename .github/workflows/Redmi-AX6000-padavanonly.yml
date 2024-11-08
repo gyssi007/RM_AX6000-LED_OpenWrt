@@ -10,8 +10,8 @@ on:
         default: 'false'
 
 env:
-  REPO_URL: https://github.com/padavanonly/immortalwrtARM
-  REPO_BRANCH: mt7986
+  REPO_URL: https://github.com/padavanonly/immortalwrt-mt798x-23.05
+  REPO_BRANCH: openwrt-23.05
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: padavanonly/Redmi-AX6000/.config
   DIY_P1_SH: padavanonly/Redmi-AX6000/diy-part1.sh
@@ -24,8 +24,8 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
-    
+    runs-on: ubuntu-22.04
+
     steps:
     - name: 检查项目分支
       uses: actions/checkout@main
@@ -36,6 +36,7 @@ jobs:
       run: |
         sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
         sudo -E apt-get -qq update
+        sudo -E apt-get -qq upgrade -y
         sudo -E apt-get -qq install $(curl -fsSL git.io/depends-ubuntu-2004)
         sudo -E apt-get -qq autoremove --purge
         sudo -E apt-get -qq clean
@@ -43,6 +44,19 @@ jobs:
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
         sudo apt-get install libfuse-dev -y
+
+    - name: 安装所需依赖
+      run: |
+        sudo apt update -y
+        sudo apt full-upgrade -y
+        sudo apt install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
+          bzip2 ccache clang cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib \
+          g++-multilib git gnutls-dev gperf haveged help2man intltool lib32gcc-s1 libc6-dev-i386 libelf-dev \
+          libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5 \
+          libncursesw5-dev libpython3-dev libreadline-dev libssl-dev libtool lld llvm lrzsz mkisofs msmtp \
+          nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip python3-ply \
+          python3-docutils python3-pyelftools qemu-utils re2c rsync scons squashfs-tools subversion swig \
+          texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
 
     - name: 安装 Go 1.22.5
       uses: actions/setup-go@v4
@@ -63,19 +77,19 @@ jobs:
       run: |
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
         chmod +x $DIY_P1_SH
-        cd openwrt
+        cd immortalwrt-mt798x-23.05
         $GITHUB_WORKSPACE/$DIY_P1_SH
         
     - name: 更新 & 安装 feeds
       run: |
-        cd openwrt
+        cd immortalwrt-mt798x-23.05
         ./scripts/feeds update -a
         rm -rf feeds/packages/lang/golang
         git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
         
     - name: 更新和替换插件
       run: |
-        cd openwrt
+        cd immortalwrt-mt798x-23.05
         # 删除旧的 Openclash 文件
         rm -rf feeds/luci/applications/luci-app-openclash
         mv feeds/kenzok8/luci-app-openclash feeds/luci/applications/luci-app-openclash
@@ -97,7 +111,7 @@ jobs:
       run: |
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         chmod +x $DIY_P2_SH
-        cd openwrt
+        cd immortalwrt-mt798x-23.05
         $GITHUB_WORKSPACE/$DIY_P2_SH
         
     - name: SSH链接管理
@@ -110,7 +124,7 @@ jobs:
     - name: 下载安装包
       id: package
       run: |
-        cd openwrt
+        cd immortalwrt-mt798x-23.05
         make defconfig
         make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
@@ -119,7 +133,7 @@ jobs:
     - name: 编译固件
       id: compile
       run: |
-        cd openwrt
+        cd immortalwrt-mt798x-23.05
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
@@ -137,13 +151,13 @@ jobs:
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: | 
-        cd openwrt/bin/targets/*/*
+        cd immortalwrt-mt798x-23.05/bin/targets/*/*
         rm -rf packages
         sudo -E apt-get -qq install rename
         rename 's/.*${{ env.TARGET_NAME }}/${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}/' *
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
-      
+     
     - name: 上传固件到github
       uses: actions/upload-artifact@main
       if: steps.organize.outputs.status == 'success' && !cancelled()
@@ -170,4 +184,3 @@ jobs:
         files: ${{ env.FIRMWARE }}/*
         name: ${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}-${{ env.DEVICE_NAME }}
         tag_name: ${{ steps.tag.outputs.release_tag }}
-        body_path: release.txt
