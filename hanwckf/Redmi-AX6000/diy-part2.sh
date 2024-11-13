@@ -21,5 +21,4 @@ mv /tmp/clash feeds/luci/applications/luci-app-openclash/root/etc/openclash/core
 rm -rf /tmp/clash.tar.gz >/dev/null 2>&1
 echo "src/gz kenzok8 https://op.dllkids.xyz/packages/aarch64_cortex-a53" >> /etc/opkg/customfeeds.conf
 sed -i 's/^option check_signature/#option check_signature/' /etc/opkg.conf
-
 ##---------------------------------------------------------
