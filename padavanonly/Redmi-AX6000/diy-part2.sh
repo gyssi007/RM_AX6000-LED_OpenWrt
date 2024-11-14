@@ -21,5 +21,6 @@ mv /tmp/clash feeds/luci/applications/luci-app-openclash/root/etc/openclash/core
 rm -rf /tmp/clash.tar.gz >/dev/null 2>&1
 echo "src/gz kenzok8 https://op.dllkids.xyz/packages/aarch64_cortex-a53" >> package/system/opkg/files/customfeeds.conf
 sed -i 's/^option check_signature/#option check_signature/' package/system/opkg/files/opkg.conf
-find . -name "Makefile" -exec sed -i 's/-Werror//g' {} +
+echo "export CFLAGS=\"-Wno-error=format-nonliteral\"" >> DIY_P2_SH
+echo "export CFLAGS=\"-U_FORTIFY_SOURCE\"" >> DIY_P2_SH
 ##---------------------------------------------------------
