@@ -1,4 +1,4 @@
-#!/bin/bash
+3#!/bin/bash
 #
 # Copyright (c) 2019-2020 P3TERX <https://p3terx.com>
 #
@@ -21,6 +21,4 @@ mv /tmp/clash feeds/luci/applications/luci-app-openclash/root/etc/openclash/core
 rm -rf /tmp/clash.tar.gz >/dev/null 2>&1
 echo "src/gz kenzok8 https://op.dllkids.xyz/packages/aarch64_cortex-a53" >> package/system/opkg/files/customfeeds.conf
 sed -i 's/^option check_signature/#option check_signature/' package/system/opkg/files/opkg.conf
-# 在 libxcrypt 的 Makefile 中将 PKG_FORTIFY_SOURCE 设置为 0
-sed -i 's/^PKG_FORTIFY_SOURCE:=.*$/PKG_FORTIFY_SOURCE:=0/' feeds/packages/libs/libxcrypt/Makefile
 ##---------------------------------------------------------
