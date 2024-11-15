@@ -120,8 +120,7 @@ jobs:
     - name: Modify PKG_FORTIFY_SOURCE for libxcrypt
       run: |
         cd openwrt
-        sed -i '/^PKG_FORTIFY_SOURCE:=/ { s/^PKG_FORTIFY_SOURCE:=.*$/PKG_FORTIFY_SOURCE:=0/; }' feeds/packages/libs/libxcrypt/Makefile
-        grep -q '^PKG_FORTIFY_SOURCE:=' feeds/packages/libs/libxcrypt/Makefile || echo 'PKG_FORTIFY_SOURCE:=0' >> feeds/packages/libs/libxcrypt/Makefile
+        sed -i '1a\CFLAGS += -Wno-format-nonliteral' feeds/packages/libs/libxcrypt/Makefile
     
     - name: 编译固件
       id: compile
