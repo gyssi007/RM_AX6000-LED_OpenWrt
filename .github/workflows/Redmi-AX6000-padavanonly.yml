@@ -120,7 +120,7 @@ jobs:
     - name: Modify PKG_FORTIFY_SOURCE for libxcrypt
       run: |
         cd openwrt
-        sed -i '/include $(TOPDIR)\/rules.mk/aCFLAGS += -Wno-format-nonliteral\nTARGET_CFLAGS += -D_FORTIFY_SOURCE=0' feeds/packages/libs/libxcrypt/Makefile
+        sed -i '/include $(TOPDIR)\/rules.mk/aCFLAGS += -Wno-format-nonliteral' feeds/packages/libs/libxcrypt/Makefile
     
     - name: 编译固件
       id: compile
