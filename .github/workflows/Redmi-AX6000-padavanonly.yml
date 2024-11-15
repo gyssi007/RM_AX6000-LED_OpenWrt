@@ -117,10 +117,6 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
     
-    - name: Modify PKG_FORTIFY_SOURCE for libxcrypt
-      run: |
-        cd openwrt
-        sed -i '/include $(TOPDIR)\/rules.mk/aTARGET_CFLAGS += -D_FORTIFY_SOURCE=0' feeds/packages/libs/libxcrypt/Makefile
   
     - name: 编译固件
       id: compile
