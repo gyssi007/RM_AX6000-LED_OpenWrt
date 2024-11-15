@@ -116,6 +116,15 @@ jobs:
         make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
+
+    - name: 更新插件源并注释 check_signature
+      run: |
+        cd openwrt
+        # 添加自定义插件源
+        echo "src/gz kenzok8 https://op.dllkids.xyz/packages/aarch64_cortex-a53" >> package/system/opkg/files/customfeeds.conf
+        # 注释掉 option check_signature
+        sed -i '/^option check_signature/s/^/#/' package/system/opkg/files/opkg.conf
+         
     
   
     - name: 编译固件
