@@ -20,7 +20,7 @@ padavanonly-[padavanonly/immortalwrtARM](https://github.com/padavanonly/immortal
 ```bash
 git clone -b openwrt-23.05 --single-branch --filter=blob:none https://github.com/padavanonly/immortalwrt-mt798x-23.05
 ```
-- hanwckf-[hanwckf/immortalwrt-mt798x](https://github.com/hanwckf/immortalwrt-mt798x).
+- hanwckf-[hanwckf/immortalwrt-mt798x](https://github.com/hanwckf/immortalwrt-mt798x)
 ```bash
 git clone -b openwrt-21.02 --single-branch https://github.com/hanwckf/immortalwrt-mt798x
 ```
