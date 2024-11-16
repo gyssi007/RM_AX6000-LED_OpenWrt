@@ -87,8 +87,7 @@ jobs:
         echo "Final update and install of all feeds..."
         ./scripts/feeds update -a || exit 1
         ./scripts/feeds install -a || exit 1
-
-   
+       
     - name: 加载config & DIY_P2_SH
       run: |
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
