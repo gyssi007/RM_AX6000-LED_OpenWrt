@@ -84,7 +84,7 @@ jobs:
       
       - name: 加载config & DIY_P2_SH
         run: |
-          [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+          [ -e $CONFIG_FILE ] && mv $CONFIG_FILE immortalwrt21.02/.config
           chmod +x $DIY_P2_SH
           cd openwrt
           $GITHUB_WORKSPACE/$DIY_P2_SH
