@@ -1,0 +1,47 @@
+name: OpenWrt All Upgrade
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release Tag'
+        required: true
+        default: 'v1.0.0'
+
+jobs:
+  build-all:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: "hanwckf"
+            file: "Redmi-AX6000-hanwckf.yml"
+          - name: "immortalwrt"
+            file: "Redmi-AX6000-immortalwrt21.02.yml"
+          - name: "padavanonly"
+            file: "Redmi-AX6000-padavanonly.yml"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Call Workflow
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: '${{ matrix.file }}',
+              ref: 'main',
+              inputs: {
+                release_tag: '${{ github.event.inputs.release_tag }}'
+              }
+            });
+
+      - name: Wait for workflow to complete
+        run: |
+          echo "Started workflow ${{ matrix.name }}"
+          sleep 30  # 等待工作流启动
