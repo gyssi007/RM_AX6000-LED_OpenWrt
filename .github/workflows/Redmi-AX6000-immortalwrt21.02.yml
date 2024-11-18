@@ -82,16 +82,11 @@ jobs:
       
       - name: 加载config & DIY_P2_SH
         run: |
-          [ -e $CONFIG_FILE ] && cp $CONFIG_FILE openwrt/.config
-          # 添加设备相关的配置
-          cd openwrt
-          echo "CONFIG_TARGET_mediatek=y" >> .config
-          echo "CONFIG_TARGET_mediatek_mt7986=y" >> .config
-          echo "CONFIG_TARGET_DEVICE_mediatek_mt7986_DEVICE_xiaomi_redmi-router-ax6000=y" >> .config
-          echo "CONFIG_TARGET_DEVICE_mediatek_mt7986_DEVICE_xiaomi_redmi-router-ax6000-stock=y" >> .config
+          [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
           chmod +x $DIY_P2_SH
+          cd openwrt
           $GITHUB_WORKSPACE/$DIY_P2_SH
-
+          
       - name: 修改默认网关和主机名
         run: |
           cd openwrt
