@@ -1,32 +1,16 @@
-name: OpenWrt All Upgrade
+name: OpenWrt All Build
 
 on:
-  workflow_dispatch:
-    inputs:
-      release_tag:
-        description: 'Release Tag'
-        required: true
-        default: 'v1.0.0'
+  workflow_dispatch:    # 手动触发
 
 jobs:
   build-all:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: "hanwckf"
-            file: "Redmi-AX6000-hanwckf.yml"
-          - name: "immortalwrt"
-            file: "Redmi-AX6000-immortalwrt21.02.yml"
-          - name: "padavanonly"
-            file: "Redmi-AX6000-padavanonly.yml"
-
+    permissions:
+      actions: write
+    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Call Workflow
+      - name: Trigger hanwckf build
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -34,14 +18,33 @@ jobs:
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              workflow_id: '${{ matrix.file }}',
-              ref: 'main',
-              inputs: {
-                release_tag: '${{ github.event.inputs.release_tag }}'
-              }
+              workflow_id: 'Redmi-AX6000-hanwckf.yml',
+              ref: 'main'
+            });
+      
+      - name: Trigger immortalwrt build
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'Redmi-AX6000-immortalwrt21.02.yml',
+              ref: 'main'
+            });
+      
+      - name: Trigger padavanonly build
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'Redmi-AX6000-padavanonly.yml',
+              ref: 'main'
             });
 
-      - name: Wait for workflow to complete
-        run: |
-          echo "Started workflow ${{ matrix.name }}"
-          sleep 30  # 等待工作流启动
+      - name: Finish
+        run: echo "All workflows have been triggered"
