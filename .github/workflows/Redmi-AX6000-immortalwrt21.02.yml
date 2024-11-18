@@ -73,10 +73,8 @@ jobs:
           echo "Removing specified packages..."
           rm -rf feeds/packages/net/{alist,ddns-go}
           rm -rf feeds/luci/applications/{luci-app-alist,luci-app-ddns-go,luci-app-openclash}
-          # 清除其他仓库的 msd_lite
           rm -rf feeds/packages/net/msd_lite
           rm -rf feeds/luci/applications/luci-app-msd_lite
-          # 克隆指定的 msd_lite 仓库
           git clone https://github.com/gyssi007/openwrt_msd_lite.git package/msd_lite
           echo "Final update and install of all feeds..."
           ./scripts/feeds update -a || exit 1
@@ -84,7 +82,8 @@ jobs:
       
       - name: 加载config & DIY_P2_SH
         run: |
-          [ -e $CONFIG_FILE ] && mv $CONFIG_FILE immortalwrt21.02/.config
+          # 修改这里：确保配置文件正确复制到openwrt目录
+          [ -e $CONFIG_FILE ] && cp $CONFIG_FILE openwrt/.config
           chmod +x $DIY_P2_SH
           cd openwrt
           $GITHUB_WORKSPACE/$DIY_P2_SH
