@@ -63,7 +63,10 @@ jobs:
           cd openwrt
           ./scripts/feeds update -a
           rm -rf feeds/packages/lang/golang
-          git clone https://github.com/openwrt/packages feeds/packages
+          git clone https://github.com/openwrt/packages.git temp-packages
+          cp -r temp-packages/lang/golang feeds/packages/lang/
+          rm -rf temp-packages
+          ./scripts/feeds install -a
 
       - name: 删除和替换插件
         run: |
